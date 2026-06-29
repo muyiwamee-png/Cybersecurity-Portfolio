@@ -1,46 +1,47 @@
-Here is a completed version of the security incident report based on the scenario and steps provided. You can use this text to fill out your template.
+# Security Incident Report: Unauthorized Access and Malware Distribution
+
+| Incident ID | Date Identified | Severity | Status |
+| :--- | :--- | :--- | :--- |
+| INC-2026-001 | June 29, 2026 | High | Investigated / Remediation Pending |
 
 ---
 
-## Security Incident Report
+## 1. Network Protocol Analysis
 
-### Section 1: Network Protocol Identified
+During the incident investigation using the network protocol analyzer `tcpdump`, several key network protocols were identified across the TCP/IP layers:
 
-During the investigation using the network protocol analyzer `tcpdump`, the following key network protocols were identified in the packet capture and event logs:
-
-* **DNS (Domain Name System):** Operating at the Application layer, DNS was used to resolve the domain names (`yummyrecipesforme.com` and `greatrecipesforme.com`) into their respective IP addresses.
-* **HTTP (Hypertext Transfer Protocol):** Also operating at the Application layer, HTTP was utilized to initiate the webpage requests and handle the subsequent download of the malicious executable file.
-* **TCP (Transmission Control Protocol):** Operating at the Transport layer, TCP provided the connection-oriented framework necessary to reliably transmit the HTTP and DNS data packets between the client browser and the web servers.
+* **DNS (Domain Name System):** Operating at the **Application layer**, DNS was utilized to resolve the domain names (`yummyrecipesforme.com` and `greatrecipesforme.com`) into their respective IP addresses.
+* **HTTP (Hypertext Transfer Protocol):** Operating at the **Application layer**, HTTP handled the initial web page requests, transmitted the malicious JavaScript code payload, and facilitated the download of the executable file.
+* **TCP (Transmission Control Protocol):** Operating at the **Transport layer**, TCP provided the connection-oriented framework necessary to ensure reliable data packet transmission between client browsers and the web servers.
 
 ---
 
-### Section 2: Incident Documentation
+## 2. Incident Documentation
 
-**Incident Summary:**
-On June 29, 2026, a critical security incident occurred involving an unauthorized systems breach and a subsequent watering-hole/malware delivery attack targeting `yummyrecipesforme.com`.
+### Executive Summary
+On June 29, 2026, `yummyrecipesforme.com` experienced a critical security breach resulting in unauthorized administrative access, source code modification, and malicious traffic redirection targeting site visitors. 
 
-**Mechanism of Attack:**
-A disgruntled former employee executed a successful brute-force attack against the web host's administrative portal. The threat actor repeatedly attempted default administrative passwords until gaining access. Upon successful authentication, the actor modified the website's source code, embedding a malicious JavaScript function, and altered the administrative password to lock out legitimate owners.
+### Timeline & Mechanism of Attack
+1.  **Initial Access (Brute Force):** A former employee targeted the web host's administrative panel, executing a brute force attack by cycling through known default passwords until successfully guessing the administrative credentials.
+2.  **Persistence & Tampering:** Upon gaining access, the threat actor modified the website's source code by embedding an unauthorized JavaScript function. The actor then altered the administrative password, effectively locking out legitimate administrators.
+3.  **Execution & Delivery:** When users visited the site, the injected JavaScript triggered a prompt instructing them to download an executable file (disguised as a browser update) to access free recipes.
+4.  **Redirection & Impact:** Running the malicious file caused client local machines to experience performance degradation (running slowly) and forced a browser redirection to a look-alike malicious domain, `greatrecipesforme.com`.
 
-**Impact & Discovery:**
-The embedded JavaScript code prompted visiting customers to download an executable file disguised as a necessary browser update to access free recipes. Upon execution, the file ran a script that degraded local system performance and redirected the users' browsers from the legitimate site to a look-alike malicious domain, `greatrecipesforme.com`.
-
-The incident was discovered after multiple customers contacted the helpdesk complaining of system slowdowns and suspicious download prompts. The website owner confirmed the breach after being unable to log into the admin panel and escalating the issue to the hosting provider.
-
-**Evidence & Sources:**
-
-* **Customer Helpdesk Logs:** Initial reports of system degradation and unauthorized prompts.
-* **Administrative Access Logs:** Evidence of repeated login failures followed by a successful login using default credentials.
-* **`tcpdump` Packet Capture:** Confirmed the network flow sequence: standard DNS/HTTP requests to the legitimate IP, followed by a forced executable download, a subsequent DNS query for `greatrecipesforme.com`, and a final redirect HTTP request to the malicious host.
-* **Source Code Inspection:** A senior analyst verified the presence of the unauthorized JavaScript injection within the main web page source code.
+### Discovery & Evidence Sources
+* **Customer Helpdesk Logs:** Multiple external complaints regarding sudden system sluggishness and unexpected file download prompts.
+* **Administrative Access Logs:** Evidence of rapid, repeated login failures followed by a successful authentication event using factory-default credentials.
+* **`tcpdump` Traffic Logs:** Packet captures verified the precise connection sequence:
+    1. Standard DNS/HTTP request to `yummyrecipesforme.com`.
+    2. Forced executable download execution.
+    3. Secondary DNS resolution request for `greatrecipesforme.com`.
+    4. HTTP request routing traffic to the malicious domain.
+* **Source Code Audit:** Internal analysis confirmed unauthorized JavaScript elements injected directly into the primary webpage source file.
 
 ---
 
-### Section 3: Remediation Recommendation
+## 3. Corrective Actions & Remediation
 
-**Recommended Measure: Implement Multi-Factor Authentication (MFA / 2FA)**
+### Recommended Measure: Enforce Multi-Factor Authentication (MFA / 2FA)
 
 **Effectiveness Analysis:**
-To prevent future brute-force access attempts, it is highly recommended to enforce Multi-Factor Authentication (MFA) for all administrative accounts.
-
-Brute-force attacks rely entirely on exploiting weak, predictable, or default passwords by guessing combinations until one works. Even if an attacker successfully guesses or acquires a valid administrative password, MFA introduces a mandatory secondary layer of verification—such as a time-based one-time password (TOTP) from an authenticator app or a hardware security key. Because the external attacker lacks physical access to the administrator's secondary device, the authentication chain is broken, effectively neutralizing the utility of the guessed password and securing the administrative panel from unauthorized access.
+To mitigate the risk of future administrative compromises via brute force, the organization must immediately implement mandatory Multi-Factor Authentication (MFA) for all web hosting and content management administrative accounts.
